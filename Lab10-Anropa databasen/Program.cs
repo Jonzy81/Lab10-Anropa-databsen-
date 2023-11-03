@@ -8,60 +8,29 @@ namespace Lab10_Anropa_databasen
     {
         static void Main(string[] args)
         {
-            /*Hämta alla kunder. Visa företagsnamn, land, region, telefonnummer och antal ordrar de har
-             Sortera på företagsnamn. Användaren ska kunna välja stigande eller fallande ordning.*/
+            ///substring for random id 
+            //Actions.OrderByClient();
 
-
-            //substring for random id 
-            using (NorthWindDbContext context = new NorthWindDbContext())
+            //Användaren ska kunna välja en kund i listan.
+            //Alla fält (utom IDn) för kunden ska då visas samt en lista på alla ordrar kunden har gjort.
+            using (NorthWindDbContext context = new NorthWindDbContext()) 
             {
-                Console.WriteLine("Do you want the information in an ordered list or an descending list? if so type o for ordered or a for ascending ");
-                string descOrAesc = Console.ReadLine();
 
                 var ordersByCustomers = context.Customers
                      .Select(c => new
                      {
                          c.CompanyName,
-                         c.Country,
+                         c.ContactName,
+                         c.ContactTitle,
+                         c.Address,
+                         c.City,
                          c.Region,
+                         c.PostalCode,
+                         c.Country,
                          c.Phone,
-                         c.Orders
+                         c.Fax                         
                      });
-
-                //.OrderByDescending(c => c.CompanyName)
-
-                //.ToList();
-                if (descOrAesc.ToLower() == "o")
-                {
-                    ordersByCustomers = ordersByCustomers.OrderBy(c => c.CompanyName);
-                }
-                else if (descOrAesc.ToLower() == "a")
-                {
-                    ordersByCustomers = ordersByCustomers.OrderByDescending(c => c.CompanyName);
-                }
-                else
-                {
-                    Console.WriteLine("Please type o for ordered or a fro aescending");
-                }
-                var result=ordersByCustomers.ToList();
-                
-
-                foreach (var o in result)
-                {
-                    Console.WriteLine($"{o.CompanyName} has made {o.Orders.Count()}");
-
-                }
-
             }
-
-
-
-            //foreach (var o in ordersByCustomers)
-            //{
-            //    Console.WriteLine($"{o.Orders.Count()}");
-
-            //}
-
 
         }
     }
