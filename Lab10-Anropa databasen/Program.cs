@@ -44,7 +44,7 @@ namespace Lab10_Anropa_databasen
                     Console.WriteLine("Please type o for ordered or a fro aescending");
                 }
                 var result=ordersByCustomers.ToList();
-                //newchange
+                
 
                 foreach (var o in result)
                 {
