@@ -16,53 +16,75 @@ namespace Lab10_Anropa_databasen
          * kolumner utom IDn. iD behöver ni generera en slumpad sträng för (5 tecken lång). 
          * Om användaren inte fyller i ett värde ska null skickas till databasen, 
          * inte en tom sträng.*/
+        public static string RandomIdGenerator()
+        {
+            string rndId = "";  //tom id sträng
+            char letter;    //char variabel 
+            int rndValue;   //tom variabel
+
+            Random rnd = new Random();  //Random metod som kommer att användas senare 
+            for (int i = 0; i <= 5; i++)    //for loop som itteeras 5 gr
+            {
+                rndValue = rnd.Next(0, 26);     //skapar 5 slumpmässiga nummer mellan 0-26
+                letter = Convert.ToChar(rndValue + 65); //omvandlar värdet vi får från rndValue till bokstäver genom att lägga till .ToChar
+                                                        //och addera 65,
+                                                        //eftersom bokstaven A har nr65 osv fram till Z
+                rndId = rndId + letter;     //Adderar bokstäverna så att de bildar en slumpmässig sträng av bokstäver 
+            }
+            return rndId;
+        }
+
         public static void CreateNewClient()
         {
-            using (NorthWindDbContext db = new NorthWindDbContext())
+            using (NorthWindDbContext context = new NorthWindDbContext())
             {
 
                 //slumpmässigt generera ett id ¨som omvandlar fyra siffror till bokstäver
                 //Användaren lägger in sträng för alla värden
                 //spara och uppdatera
-
-
-                string rndId = "";  //tom id sträng
-                char letter;    //char variabel 
-                int rndValue;   //tom variabel
-                  
-                Random rnd = new Random();  //Random metod som kommer att användas senare 
-                for (int i = 0; i <= 5; i++)    //for loop som itteeras 5 gr
-                {
-                    rndValue = rnd.Next(0, 26);     //skapar 5 slumpmässiga nummer mellan 0-26
-                    letter = Convert.ToChar(rndValue + 65); //omvandlar värdet vi får från rndValue till bokstäver genom att lägga till .ToChar
-                                                            //och addera 65,
-                                                            //eftersom bokstaven A har nr65 osv fram till Z
-                    rndId = rndId + letter;     //Adderar bokstäverna så att de bildar en slumpmässig sträng av bokstäver 
-                }
-                
-
+                string randomId = RandomIdGenerator();
                 Console.WriteLine("Please enter company name: ");
-                string companyName=Console.ReadLine();
+                string companyName = Console.ReadLine();
+                while (string.IsNullOrWhiteSpace(companyName))
+                {
+                    Console.WriteLine("you hawe to enter a companyname.");
+                }
                 Console.WriteLine("Please enter contact name: ");
-                string contactName=Console.ReadLine();
+                string contactName = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter contact title: ");
-                string contactTitle=Console.ReadLine();
+                string contactTitle = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter adress: ");
-                string adress= Console.ReadLine();
+                string adress = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter city: ");
-                string city=Console.ReadLine();
+                string city = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter region: ");
-                string region= Console.ReadLine();
+                string region = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter postal code: ");
-                string postalCode=Console.ReadLine();
+                string postalCode = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter Country: ");
-                string country= Console.ReadLine();
+                string country = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter phone number: ");
-                int phone = Convert.ToInt32(Console.ReadLine());
+                string phone = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
                 Console.WriteLine("Please enter fax number: ");
-                int fax= Convert.ToInt32(Console.ReadLine());
+                string fax = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
 
+                Customer newCustomer = new Customer
+                {
+                    CustomerId = randomId,
+                    CompanyName = companyName,
+                    ContactName = contactName,
+                    ContactTitle = contactTitle,
+                    Address = adress,
+                    City = city,
+                    Region = region,
+                    PostalCode = postalCode,
+                    Country = country,
+                    Phone = phone,
+                    Fax = fax
+                };
 
+                context.Customers.Add(newCustomer);
+                context.SaveChanges();
             }
         }
 
@@ -120,13 +142,13 @@ namespace Lab10_Anropa_databasen
         public static void ShowOrdersMadeByClient()
         {
             Console.WriteLine("Please type the Clients Name you want to search for: ");
-            string clientSearch=Console.ReadLine();
+            string clientSearch = Console.ReadLine();
             Console.WriteLine();
             using (NorthWindDbContext context = new NorthWindDbContext())
             {
                 List<Order> ordersByClient = context.Customers
                      .Where(o => o.CompanyName == clientSearch)
-                     
+
                      .Include(o => o.Orders)
                      .Single()
                      .Orders
@@ -169,22 +191,22 @@ namespace Lab10_Anropa_databasen
                 {
                     Console.WriteLine($"has made the following orders: {o.OrderId}, {o.OrderDate}");
                 }
-                
+
             }
 
         }
 
 
 
-            //foreach (var o in ordersByCustomers)
-            //{
-            //    Console.WriteLine($"{o.Orders.Count()}");
+        //foreach (var o in ordersByCustomers)
+        //{
+        //    Console.WriteLine($"{o.Orders.Count()}");
 
-            //}
+        //}
 
-        
-       
-        
+
+
+
 
     }
 }
