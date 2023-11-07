@@ -3,9 +3,11 @@ using Lab10_Anropa_databasen.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Lab10_Anropa_databasen
 {
@@ -16,6 +18,7 @@ namespace Lab10_Anropa_databasen
          * kolumner utom IDn. iD behöver ni generera en slumpad sträng för (5 tecken lång). 
          * Om användaren inte fyller i ett värde ska null skickas till databasen, 
          * inte en tom sträng.*/
+        
         public static string RandomIdGenerator()
         {
             string rndId = "";  //tom id sträng
@@ -23,7 +26,7 @@ namespace Lab10_Anropa_databasen
             int rndValue;   //tom variabel
 
             Random rnd = new Random();  //Random metod som kommer att användas senare 
-            for (int i = 0; i <= 5; i++)    //for loop som itteeras 5 gr
+            for (int i = 0; i < 5; i++)    //for loop som itteeras 5 gr
             {
                 rndValue = rnd.Next(0, 26);     //skapar 5 slumpmässiga nummer mellan 0-26
                 letter = Convert.ToChar(rndValue + 65); //omvandlar värdet vi får från rndValue till bokstäver genom att lägga till .ToChar
@@ -31,6 +34,7 @@ namespace Lab10_Anropa_databasen
                                                         //eftersom bokstaven A har nr65 osv fram till Z
                 rndId = rndId + letter;     //Adderar bokstäverna så att de bildar en slumpmässig sträng av bokstäver 
             }
+           
             return rndId;
         }
 
@@ -42,6 +46,7 @@ namespace Lab10_Anropa_databasen
                 //slumpmässigt generera ett id ¨som omvandlar fyra siffror till bokstäver
                 //Användaren lägger in sträng för alla värden
                 //spara och uppdatera
+                
                 string randomId = RandomIdGenerator();
                 Console.WriteLine("Please enter company name: ");
                 string companyName = Console.ReadLine();
@@ -50,25 +55,34 @@ namespace Lab10_Anropa_databasen
                     Console.WriteLine("you hawe to enter a companyname.");
                 }
                 Console.WriteLine("Please enter contact name: ");
-                string contactName = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                string input = Console.ReadLine();
+                string contactName = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter contact title: ");
-                string contactTitle = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string contactTitle = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter adress: ");
-                string adress = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string adress = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter city: ");
-                string city = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string city = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter region: ");
-                string region = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string region = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter postal code: ");
-                string postalCode = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string postalCode = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter Country: ");
-                string country = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string country = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter phone number: ");
-                string phone = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string phone = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter fax number: ");
-                string fax = !string.IsNullOrWhiteSpace(Console.ReadLine()) ? Console.ReadLine() : null;
+                input = Console.ReadLine();
+                string fax = string.IsNullOrWhiteSpace(input) ? null : input;
 
-                Customer newCustomer = new Customer
+                var newCustomer = new Customer
                 {
                     CustomerId = randomId,
                     CompanyName = companyName,
@@ -85,6 +99,8 @@ namespace Lab10_Anropa_databasen
 
                 context.Customers.Add(newCustomer);
                 context.SaveChanges();
+                Console.Clear();
+                Console.WriteLine($"{companyName} was added to the database");
             }
         }
 
@@ -97,30 +113,32 @@ namespace Lab10_Anropa_databasen
             using (NorthWindDbContext context = new NorthWindDbContext())
             {
 
-
-
                 Console.WriteLine("Do you want the information in an ordered list or an descending list? if so type o for ordered or a for ascending ");
                 string descOrAesc = Console.ReadLine();
                 Console.WriteLine();
 
                 var ordersByCustomers = context.Customers
-                     .Select(c => new
+                    
+                     .Select(o => new
                      {
-                         c.CompanyName,
-                         c.Country,
-                         c.Region,
-                         c.Phone,
-                         c.Orders
-                     });
-
+                         o.CompanyName,
+                         o.Country,
+                         o.Region,
+                         o.Phone,
+                         OrderCount = o.Orders.Count(),
+                         ShippedCount = o.Orders.Where(c=>c.ShippedDate != null).Count(),
+                         NotShippedCount = o.Orders.Where(c => c.ShippedDate == null).Count()
+                     })             
+                     
+                     .ToList();
 
                 if (descOrAesc.ToLower() == "o")
                 {
-                    ordersByCustomers = ordersByCustomers.OrderBy(c => c.CompanyName);
+                    ordersByCustomers = ordersByCustomers.OrderBy(c => c.CompanyName).ToList();
                 }
                 else if (descOrAesc.ToLower() == "a")
                 {
-                    ordersByCustomers = ordersByCustomers.OrderByDescending(c => c.CompanyName);
+                    ordersByCustomers = ordersByCustomers.OrderByDescending(c => c.CompanyName).ToList();
                 }
                 else
                 {
@@ -128,14 +146,16 @@ namespace Lab10_Anropa_databasen
                 }
                 var result = ordersByCustomers.ToList();
 
-                int listNumber = 1;
-                foreach (var o in result)
+                foreach (var c in ordersByCustomers)
                 {
-                    Console.WriteLine($"{listNumber}:--{o.CompanyName}--{o.Country}--{o.Region}--{o.Phone} has made {o.Orders.Count()} orders");
-                    listNumber++;
-                    Console.WriteLine();
+                    Console.WriteLine($"{c.CompanyName}--{c.Country}--{c.Region}--{c.Phone} " +
+                     $"has made {c.OrderCount} orders. " +
+                     $"Total Orders Shipped: {c.ShippedCount}, " +
+                     $"with {c.NotShippedCount} orders not shipped:");
 
-                }
+                    Console.WriteLine();
+                    
+                }      
             }
         }
 
@@ -146,13 +166,7 @@ namespace Lab10_Anropa_databasen
             Console.WriteLine();
             using (NorthWindDbContext context = new NorthWindDbContext())
             {
-                List<Order> ordersByClient = context.Customers
-                     .Where(o => o.CompanyName == clientSearch)
-
-                     .Include(o => o.Orders)
-                     .Single()
-                     .Orders
-                     .ToList();
+               
 
                 var customerSearch = context.Customers
                     .Where(c => c.CompanyName == clientSearch)
@@ -171,7 +185,26 @@ namespace Lab10_Anropa_databasen
 
                     })
                     .ToList();
+                if (customerSearch.Count == 0 )
+                {
+                    Console.Clear();
+                    Console.WriteLine($"No client with named {clientSearch} was found");
+                }
+                else
+                {
+                    List<Order> ordersByClient = context.Customers
+                     .Where(o => o.CompanyName == clientSearch)
 
+                     .Include(o => o.Orders)
+                     .Single()
+                     .Orders
+                     .ToList();
+
+                    foreach (var o in ordersByClient)
+                    {
+                        Console.WriteLine($"has made the following orders: {o.OrderId}, {o.OrderDate}");
+                    }
+                }
                 foreach (var o in customerSearch)
                 {
                     //Wrote all this code instead of just Console.Writeline(o) just to not hawe {} in the console 
@@ -187,26 +220,9 @@ namespace Lab10_Anropa_databasen
                         $" Fax: {o.Fax}");
                 }
 
-                foreach (var o in ordersByClient)
-                {
-                    Console.WriteLine($"has made the following orders: {o.OrderId}, {o.OrderDate}");
-                }
+               
 
             }
-
         }
-
-
-
-        //foreach (var o in ordersByCustomers)
-        //{
-        //    Console.WriteLine($"{o.Orders.Count()}");
-
-        //}
-
-
-
-
-
     }
 }

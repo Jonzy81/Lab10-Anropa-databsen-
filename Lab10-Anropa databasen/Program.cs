@@ -13,11 +13,8 @@ namespace Lab10_Anropa_databasen
     {
         static void Main(string[] args)
         {
-            MethodCollection.CreateNewClient();
-            //MethodCollection.ShowOrdersMadeByClient();
-        //    Meny.UserChoice();
-        //Actions.OrderByClient();
-        //Actions.GetSingleCustomer();
+
+            Meny.UserChoice();
 
         }
     }
