@@ -56,6 +56,7 @@ namespace Lab10_Anropa_databasen
                 }
                 Console.WriteLine("Please enter contact name: ");
                 string input = Console.ReadLine();
+                //Condition for setting value to null if nothing is entered
                 string contactName = string.IsNullOrWhiteSpace(input) ? null : input;
                 Console.WriteLine("Please enter contact title: ");
                 input = Console.ReadLine();
