@@ -8,6 +8,8 @@ namespace Lab10_Anropa_databasen
 {
     public class Meny
     {
+        //Skapa metod för meny som anropar samtliga metoder
+        //while loop med try/ cath och switch 
         public static void UserChoice()
         {
             int choice = -1;

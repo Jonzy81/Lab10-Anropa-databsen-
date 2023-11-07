@@ -18,7 +18,7 @@ namespace Lab10_Anropa_databasen
          * kolumner utom IDn. iD behöver ni generera en slumpad sträng för (5 tecken lång). 
          * Om användaren inte fyller i ett värde ska null skickas till databasen, 
          * inte en tom sträng.*/
-        
+
         public static string RandomIdGenerator()
         {
             string rndId = "";  //tom id sträng
@@ -34,30 +34,31 @@ namespace Lab10_Anropa_databasen
                                                         //eftersom bokstaven A har nr65 osv fram till Z
                 rndId = rndId + letter;     //Adderar bokstäverna så att de bildar en slumpmässig sträng av bokstäver 
             }
-           
+
             return rndId;
         }
 
         public static void CreateNewClient()
         {
-            using (NorthWindDbContext context = new NorthWindDbContext())
+            using (NorthWindDbContext context = new NorthWindDbContext())//skapar instans av Classen Northwind som interagerar med databsen 
             {
 
                 //slumpmässigt generera ett id ¨som omvandlar fyra siffror till bokstäver
                 //Användaren lägger in sträng för alla värden
                 //spara och uppdatera
-                
-                string randomId = RandomIdGenerator();
+
+                string randomId = RandomIdGenerator();  //anropar metod
                 Console.WriteLine("Please enter company name: ");
                 string companyName = Console.ReadLine();
-                while (string.IsNullOrWhiteSpace(companyName))
+                while (string.IsNullOrWhiteSpace(companyName))  //while loop som förhindrar användare att skriva tom sträng
                 {
-                    Console.WriteLine("you hawe to enter a companyname.");
+                    Console.WriteLine("you hawe to enter a companyname.");  
+                    companyName = Console.ReadLine();   //förhindrar oändlig loop
                 }
                 Console.WriteLine("Please enter contact name: ");
                 string input = Console.ReadLine();
-                //Condition for setting value to null if nothing is entered
-                string contactName = string.IsNullOrWhiteSpace(input) ? null : input;
+                //vilkor som sätter värdet till Null ifall användaren inte anger något värde
+                string contactName = string.IsNullOrWhiteSpace(input) ? null : input; //kontrollerar ifall input är tom, : skapar vilkor ifall readline är tom skapas null annars input
                 Console.WriteLine("Please enter contact title: ");
                 input = Console.ReadLine();
                 string contactTitle = string.IsNullOrWhiteSpace(input) ? null : input;
@@ -83,9 +84,9 @@ namespace Lab10_Anropa_databasen
                 input = Console.ReadLine();
                 string fax = string.IsNullOrWhiteSpace(input) ? null : input;
 
-                var newCustomer = new Customer
+                var newCustomer = new Customer  //ny instans av Customer med variabel namn newCustomer
                 {
-                    CustomerId = randomId,
+                    CustomerId = randomId,  
                     CompanyName = companyName,
                     ContactName = contactName,
                     ContactTitle = contactTitle,
@@ -98,9 +99,9 @@ namespace Lab10_Anropa_databasen
                     Fax = fax
                 };
 
-                context.Customers.Add(newCustomer);
-                context.SaveChanges();
-                Console.Clear();
+                context.Customers.Add(newCustomer); //lägger till användare
+                context.SaveChanges();  //sparar
+                Console.Clear();    //rensar consol
                 Console.WriteLine($"{companyName} was added to the database");
             }
         }
@@ -119,21 +120,21 @@ namespace Lab10_Anropa_databasen
                 Console.WriteLine();
 
                 var ordersByCustomers = context.Customers
-                    
-                     .Select(o => new
+
+                     .Select(o => new   //skapar ett nytt object för nedanstående 
                      {
                          o.CompanyName,
                          o.Country,
                          o.Region,
                          o.Phone,
-                         OrderCount = o.Orders.Count(),
-                         ShippedCount = o.Orders.Where(c=>c.ShippedDate != null).Count(),
-                         NotShippedCount = o.Orders.Where(c => c.ShippedDate == null).Count()
-                     })             
-                     
+                         OrderCount = o.Orders.Count(), //räknar antalet ordrar
+                         ShippedCount = o.Orders.Where(c => c.ShippedDate != null).Count(),//räknar antalet shipeddate som inte är null 
+                         NotShippedCount = o.Orders.Where(c => c.ShippedDate == null).Count()//räknar antalet shippeddate som är null 
+                     })
+
                      .ToList();
 
-                if (descOrAesc.ToLower() == "o")
+                if (descOrAesc.ToLower() == "o")    // sorterar svar
                 {
                     ordersByCustomers = ordersByCustomers.OrderBy(c => c.CompanyName).ToList();
                 }
@@ -147,7 +148,7 @@ namespace Lab10_Anropa_databasen
                 }
                 var result = ordersByCustomers.ToList();
 
-                foreach (var c in ordersByCustomers)
+                foreach (var c in ordersByCustomers)    //foreach för att skriva ut information 
                 {
                     Console.WriteLine($"{c.CompanyName}--{c.Country}--{c.Region}--{c.Phone} " +
                      $"has made {c.OrderCount} orders. " +
@@ -155,8 +156,8 @@ namespace Lab10_Anropa_databasen
                      $"with {c.NotShippedCount} orders not shipped:");
 
                     Console.WriteLine();
-                    
-                }      
+
+                }
             }
         }
 
@@ -167,7 +168,7 @@ namespace Lab10_Anropa_databasen
             Console.WriteLine();
             using (NorthWindDbContext context = new NorthWindDbContext())
             {
-               
+
 
                 var customerSearch = context.Customers
                     .Where(c => c.CompanyName == clientSearch)
@@ -186,26 +187,26 @@ namespace Lab10_Anropa_databasen
 
                     })
                     .ToList();
-                if (customerSearch.Count == 0 )
+                if (customerSearch.Count == 0)  //förhindrar bugg
                 {
                     Console.Clear();
                     Console.WriteLine($"No client with named {clientSearch} was found");
                 }
                 else
                 {
-                    List<Order> ordersByClient = context.Customers
-                     .Where(o => o.CompanyName == clientSearch)
-
-                     .Include(o => o.Orders)
-                     .Single()
-                     .Orders
-                     .ToList();
+                    List<Order> ordersByClient = context.Customers //samlar ordrar kopplade till kunder och sparar dem i en Lista
+                     .Where(o => o.CompanyName == clientSearch) //söker efter kund
+                     .Include(o => o.Orders)    //includerar Orders 
+                     .Single()  //hämta första matchningen annars ge undantag
+                     .Orders    //hämta orders
+                     .ToList(); //omvandlar data och lagrar dem i ordersByClient
 
                     foreach (var o in ordersByClient)
                     {
                         Console.WriteLine($"has made the following orders: {o.OrderId}, {o.OrderDate}");
                     }
                 }
+
                 foreach (var o in customerSearch)
                 {
                     //Wrote all this code instead of just Console.Writeline(o) just to not hawe {} in the console 
@@ -220,9 +221,6 @@ namespace Lab10_Anropa_databasen
                         $" Phone: {o.Phone}," +
                         $" Fax: {o.Fax}");
                 }
-
-               
-
             }
         }
     }
